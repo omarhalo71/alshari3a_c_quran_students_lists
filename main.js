@@ -73,26 +73,24 @@ form.addEventListener("submit", (eo) => {
 
   input.value = "";
 });
+// ... other imports ...
+import { getDatabase, ref, set, onValue } from "firebase/database";
+
+// ... Firebase initialization ...
+
+const db = getDatabase(app); // Get a reference to the database
+
 function saveTasks() {
-  localStorage.setItem("tasks", container.innerHTML);
+  const tasksRef = ref(db, 'tasks'); // Create a reference to the 'tasks' node
+  set(tasksRef, container.innerHTML); // Save the tasks HTML to the database
 }
 
 function loadTasks() {
-  const savedTasks = localStorage.getItem("tasks");
-  if (savedTasks) {
-    container.innerHTML = savedTasks;
-  }
+  const tasksRef = ref(db, 'tasks');
+  onValue(tasksRef, (snapshot) => { // Listen for changes in the 'tasks' node
+    const savedTasks = snapshot.val();
+    if (savedTasks) {
+      container.innerHTML = savedTasks; // Update the UI with the tasks
+    }
+  });
 }
-
-// استدعاء loadTasks عند تحميل الصفحة
-loadTasks();
-
-form.addEventListener("submit", (eo) => {
-  // ... (بقية الكود) ...
-  saveTasks(); // حفظ المهام بعد إضافة مهمة جديدة
-});
-
-container.addEventListener("click", (eo) => {
-  // ... (بقية الكود) ...
-  saveTasks(); // حفظ المهام بعد أي تعديل (حذف، اكتمال، تمييز)
-});
